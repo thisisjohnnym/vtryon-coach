@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import clsx from "clsx";
 import type { CSSProperties } from "react";
 import { Box } from "./primitives/Box";
@@ -6,6 +7,66 @@ import { Icon } from "./Icon";
 import { Reveal } from "./Reveal";
 import { ColorCarousel } from "./ColorCarousel";
 import { PRODUCT_PRICE, PRODUCT_TITLE, colorways } from "../data/colorways";
+
+type TryOnPhotoProps = {
+  heroIndex: number;
+  visible: boolean;
+};
+
+/**
+ * Crossfades between colourway photos using a front and a back slot. The
+ * outgoing photo is held fully opaque underneath the incoming one, because two
+ * layers fading independently would expose the backdrop at the midpoint and
+ * read as a dark dip.
+ */
+function TryOnPhoto({ heroIndex, visible }: TryOnPhotoProps) {
+  const [front, setFront] = useState(heroIndex);
+  const [back, setBack] = useState(heroIndex);
+  const [frontArrived, setFrontArrived] = useState(true);
+
+  useEffect(() => {
+    if (heroIndex === front) return;
+    setBack(front);
+    setFront(heroIndex);
+    setFrontArrived(false);
+  }, [front, heroIndex]);
+
+  useEffect(() => {
+    if (frontArrived) return;
+    const frame = requestAnimationFrame(() => setFrontArrived(true));
+    return () => cancelAnimationFrame(frame);
+  }, [frontArrived]);
+
+  return (
+    <Box
+      className={clsx(
+        "absolute inset-0 transition-enter motion-reduce:transition-none",
+        visible ? "opacity-100 blur-clear" : "opacity-0 blur-veil",
+      )}
+    >
+      {colorways.map((colorway, index) => {
+        const isFront = index === front;
+        const isBack = index === back && !isFront;
+        return (
+          <Box
+            key={colorway.id}
+            className={clsx(
+              "absolute -top-48 left-1/2 h-956 w-440 -translate-x-1/2 bg-artwork bg-cover bg-center transition-swap motion-reduce:transition-none",
+              isFront && "z-2",
+              isBack && "z-1",
+              isFront && !frontArrived && "opacity-0 blur-veil",
+              isFront && frontArrived && "opacity-100 blur-clear",
+              isBack && "opacity-100 blur-clear",
+              !isFront && !isBack && "opacity-0",
+            )}
+            style={{ "--artwork": `url(${colorway.hero})` } as CSSProperties}
+          />
+        );
+      })}
+      <Box className="absolute inset-0 z-3 bg-photo-wash opacity-10" />
+    </Box>
+  );
+}
 
 type TryOnScreenProps = {
   screenVisible: boolean;
@@ -29,25 +90,10 @@ export function TryOnScreen({
   onUnavailable,
 }: TryOnScreenProps) {
   return (
-    <Box className="absolute inset-0 overflow-hidden bg-ink">
-      <Box
-        className={clsx(
-          "absolute inset-0 transition-enter motion-reduce:transition-none",
-          screenVisible ? "opacity-100 blur-clear" : "opacity-0 blur-veil",
-        )}
-      >
-        {colorways.map((colorway, index) => (
-          <Box
-            key={colorway.id}
-            className={clsx(
-              "absolute -top-48 left-1/2 h-956 w-440 -translate-x-1/2 bg-artwork bg-cover bg-center transition-swap motion-reduce:transition-none",
-              index === heroIndex ? "opacity-100 blur-clear" : "opacity-0 blur-veil",
-            )}
-            style={{ "--artwork": `url(${colorway.hero})` } as CSSProperties}
-          />
-        ))}
-        <Box className="absolute inset-0 bg-photo-wash opacity-10" />
-      </Box>
+    // Deliberately no background here: the screen fades over the stage's white
+    // ground, so the hand-off to and from the splash never darkens.
+    <Box className="absolute inset-0 overflow-hidden">
+      <TryOnPhoto heroIndex={heroIndex} visible={screenVisible} />
 
       <Reveal
         show={screenVisible}
