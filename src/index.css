@@ -1,0 +1,137 @@
+@import "tailwindcss";
+
+/* Expanded is the heaviest expanded cut shipped in Coach/_assets/fonts, so the
+   400 and 500 roles of the Paper design both resolve to it. */
+@font-face {
+  font-family: "Helvetica Neue LT Pro Ex";
+  src: url("/fonts/HelveticaNeueLTPro-Ex.woff2") format("woff2");
+  font-weight: 400 500;
+  font-style: normal;
+  font-display: block;
+}
+
+@theme {
+  /* Paper authors this flow in whole pixels at 440x956. A 1px base unit keeps
+     every spacing utility on-scale and 1:1 with the source frames. */
+  --spacing: 1px;
+
+  --color-page: #ffffff;
+  --color-surface: #ffffff;
+  --color-ink: #000000;
+  --color-ink-strong: #161616;
+  --color-ink-muted: #4e4e4e;
+  --color-ink-inverse: #ffffff;
+  --color-step-badge: #ebebeb;
+  --color-photo-wash: #000000;
+  --color-hairline: #000000;
+  --color-scrim: #808080;
+
+  --font-expanded: "Helvetica Neue LT Pro Ex", system-ui, sans-serif;
+  --font-icon: "Material Symbols Outlined", system-ui, sans-serif;
+
+  --text-caption: 10px;
+  --text-caption--line-height: 125%;
+  --text-label: 12px;
+  --text-label--line-height: 125%;
+  --text-body: 14px;
+  --text-body--line-height: 120%;
+  --text-title: 16px;
+  --text-title--line-height: 120%;
+  --text-display: 24px;
+  --text-display--line-height: 120%;
+  --text-overlay: 20px;
+  --text-overlay--line-height: 120%;
+
+  --text-icon: 24px;
+  --text-icon--line-height: 30px;
+  --text-icon-action: 19px;
+  --text-icon-action--line-height: 24px;
+  --text-icon-chip: 14px;
+  --text-icon-chip--line-height: 18px;
+
+  --tracking-label: 0.2px;
+
+  --radius-drawer: 16px;
+  --radius-chip: 2px;
+  --radius-pill: 800px;
+
+  --blur-clear: 0px;
+  --blur-veil: 4px;
+  --blur-glass: 16px;
+
+  --ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Motion vocabulary. Every visible state change in this prototype uses one of
+   these; nothing swaps instantly outside of reduced motion. */
+@utility transition-enter {
+  transition-property: opacity, filter, translate, transform;
+  transition-duration: 700ms;
+  transition-timing-function: var(--ease-soft);
+}
+
+@utility transition-exit {
+  transition-property: opacity, filter, translate, transform;
+  transition-duration: 450ms;
+  transition-timing-function: var(--ease-soft);
+}
+
+/* Swapping the try-on photo is a direct answer to a tap, so it runs short. */
+@utility transition-swap {
+  transition-property: opacity, filter;
+  transition-duration: 420ms;
+  transition-timing-function: var(--ease-soft);
+}
+
+/* The drawer arrives already open and never blurs, so only opacity moves. */
+@utility transition-drawer {
+  transition-property: opacity;
+  transition-duration: 700ms;
+  transition-timing-function: var(--ease-soft);
+}
+
+@utility transition-overlay {
+  transition-property: opacity, filter;
+  transition-duration: 280ms;
+  transition-timing-function: var(--ease-soft);
+}
+
+/* Fixed artwork from the Paper file. Data-driven artwork (hero photos, bag
+   tiles) is passed in through the --artwork custom property instead. */
+@utility bg-splash-phone {
+  background-image: url("/images/splash-phone.png");
+}
+
+@utility bg-apple-pay {
+  background-image: url("/images/apple-pay.png");
+}
+
+@utility bg-artwork {
+  background-image: var(--artwork);
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--color-ink);
+    font-family: var(--font-expanded);
+    -webkit-font-smoothing: antialiased;
+    overscroll-behavior: none;
+  }
+
+  button {
+    appearance: none;
+    border: 0;
+    background: none;
+    padding: 0;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+  }
+}
